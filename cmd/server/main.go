@@ -11,8 +11,8 @@ func main() {
 	router := http.NewServeMux()
 	handler := user.NewHandler()
 	handler.Register(router)
-
 	start(router)
+
 }
 
 func start(router http.Handler) {

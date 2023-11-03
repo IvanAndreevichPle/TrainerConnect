@@ -1,6 +1,40 @@
 POST http://localhost:1234/users
 Content-Type: application/json
 
+{
+  "firstname": "John",
+  "lastname": "Doe",
+  "role": "client",
+  "email": "john.doe@example.com"
+}
+
+###
+
+PUT http://localhost:1234/users/1
+Content-Type: application/json
+
+{
+  "firstname": "Updated Firstname",
+  "lastname": "Updated Lastname",
+  "role": "trainer",
+  "email": "updated.email@example.com"
+}
+
+
+###
+
+PATCH http://localhost:1234/user/1
+Content-Type: application/json
+
+{
+  "firstname": "Patched Firstname"
+}
+
+###
+
+DELETE http://localhost:1234/user/1
+Content-Type: application/json
+
 {}
 
 ###
