@@ -1,5 +1,4 @@
-GET http://localhost:1234/users/
-Content-Type: application/json
+GET http://localhost:1234/users?username=Bedon
 
 {}
 
@@ -11,60 +10,31 @@ Content-Type: application/json
 {}
 
 ###
+
 POST http://localhost:1234/users/
 Content-Type: application/json
 
 {
-    "firstname": "Иван123",
-    "lastname": "Плеханов123",
-    "username": "FatJoe123",
+    "firstname": "Setgon",
+    "lastname": "Carbon",
+    "username": "Bedon",
     "role": "client",
-    "email": "hey123@example.com",
-    "password": "secure"
+    "email": "Bedon@example.com",
+    "password": "Vertu123"
 }
 
 ###
-POST http://localhost:1234/users/
+
+DELETE http://localhost:1234/users/57
 Content-Type: application/json
 
-{
-  "user": {
-    "firstName": "John1234",
-    "lastName": "Doe1234123",
-    "username": "john_doe2312",
-    "role": "client",
-    "email": "john.do123412e@example.com"
-  },
-  "password": "securepasswor123412d"
-}
 ###
-
 POST http://localhost:1234/auth
 Content-Type: application/json
 
 {
-  "username":"john_doe",
-  "password":"password123"
+  "username": "Bedon",
+  "password": "Vertu123"
 }
-
-###
-PUT http://localhost:1234/users/10
-Content-Type: application/json
-
-{"firstname": "Новое имя", "lastname": "Новая фамилия", "email": "newemail@example.com"}
-###
-
-PATCH http://localhost:1234/users/10
-Content-Type: application/json
-
-{
-  "firstname": "Веня"
-}
-
-
-###
-
-DELETE http://localhost:1234/users/48
-Content-Type: application/json
 
 ###

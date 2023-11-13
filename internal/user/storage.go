@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"log"
 )
 
 type Storage struct {
@@ -16,6 +17,7 @@ func NewStorage(db *sql.DB) *Storage {
 func (s *Storage) CreateUser(user *User, password, salt string) error {
 	_, err := s.DB.Exec("INSERT INTO users (first_name, last_name, username, password, role, email, salt) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		user.FirstName, user.LastName, user.Username, password, user.Role, user.Email, salt)
+
 	return err
 }
 
@@ -63,16 +65,22 @@ func (s *Storage) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
-// GetUserByUsername возвращает пользователя по имени пользователя из базы данных
-func (s *Storage) GetUserByUsername(username string) (*User, error) {
-	query := "SELECT id, username, password, role, first_name, last_name, email FROM users WHERE username = $1"
+// GetUserByUsername возвращает пользователя и соль по имени пользователя из базы данных
+func (s *Storage) GetUserByUsername(username string) (*User, string, error) {
+	query := "SELECT user_id, username, password, salt, role, first_name, last_name, email FROM users WHERE username = $1"
 	row := s.DB.QueryRow(query, username)
 
 	var u User
-	err := row.Scan(&u.ID, &u.Username, &u.Password, &u.Role, &u.FirstName, &u.LastName, &u.Email)
+
+	err := row.Scan(&u.ID, &u.Username, &u.Password, &u.Salt, &u.Role, &u.FirstName, &u.LastName, &u.Email)
+
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, "", nil // Пользователь не найден, возвращаем nil и пустую соль
+		}
+		log.Printf("Error getting user by username: %v", err)
+		return nil, "", err
 	}
 
-	return &u, nil
+	return &u, u.Salt, nil
 }

@@ -4,6 +4,7 @@ package user
 
 import (
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
@@ -32,6 +33,7 @@ func (h *Handler) Register(router *chi.Mux) {
 	router.Put(userURL+"{id}", h.UpdateUser)
 	router.Patch(userURL+"{id}", h.PatchUser)
 	router.Delete(userURL+"{id}", h.DeleteUser)
+	router.Post("/auth", h.AuthenticateUser)
 }
 
 func (h *Handler) GetList(w http.ResponseWriter, r *http.Request) {
@@ -216,7 +218,6 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User with ID " + id + " has been successfully deleted"))
 }
 
-// GetUserByUsernameHandler обрабатывает запрос на получение пользователя по имени пользователя
 func (h *Handler) GetUserByUsernameHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query().Get("username")
 	if username == "" {
@@ -224,9 +225,14 @@ func (h *Handler) GetUserByUsernameHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user, err := h.Storage.GetUserByUsername(username)
+	user, _, err := h.Storage.GetUserByUsername(username)
 	if err != nil {
 		http.Error(w, "Error getting user by username", http.StatusInternalServerError)
+		return
+	}
+
+	if user == nil {
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
@@ -255,4 +261,45 @@ func HashPassword(password, salt string) (string, error) {
 	}
 
 	return string(hashedPassword), nil
+}
+
+// AuthenticateUser аутентифицирует пользователя
+func (h *Handler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var authData struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Salt     string `json:"salt"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&authData); err != nil {
+		log.Printf("Error decoding request body: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Получение пользователя и соли по имени пользователя из базы данных
+	existingUser, _, err := h.Storage.GetUserByUsername(authData.Username)
+	if err != nil {
+		log.Printf("Error getting user by username: %v", err)
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	// Проверка совпадения пароля с использованием соли
+	hashedPassword, err := HashPassword(authData.Password, authData.Salt)
+	if err != nil {
+		log.Printf("Error hashing password: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if subtle.ConstantTimeCompare([]byte(hashedPassword), []byte(existingUser.Password)) != 1 {
+		log.Printf("Invalid password for user %s", authData.Username)
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	// TODO: Создание токена аутентификации (JWT, например) и отправка его в ответе
+	// Пример: отправка успешного ответа
+	w.Write([]byte("Authentication successful"))
 }
