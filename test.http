@@ -15,11 +15,12 @@ POST http://localhost:1234/users/
 Content-Type: application/json
 
 {
-  "firstname": "Ivan",
-  "lastname": "Plekhanov",
-  "username": "HeyTolstiy",
-  "role": "client",
-  "Email": "heytolty2@example.com"
+    "firstname": "Иван123",
+    "lastname": "Плеханов123",
+    "username": "FatJoe123",
+    "role": "client",
+    "email": "hey123@example.com",
+    "password": "secure"
 }
 
 ###
@@ -27,16 +28,26 @@ POST http://localhost:1234/users/
 Content-Type: application/json
 
 {
-  "firstname": "Анна",
-  "lastname": "Смирнова",
-  "username": "FatANN",
-  "role": "client",
-  "email": "anna456@example.com"
+  "user": {
+    "firstName": "John1234",
+    "lastName": "Doe1234123",
+    "username": "john_doe2312",
+    "role": "client",
+    "email": "john.do123412e@example.com"
+  },
+  "password": "securepasswor123412d"
 }
-
-
 ###
 
+POST http://localhost:1234/auth
+Content-Type: application/json
+
+{
+  "username":"john_doe",
+  "password":"password123"
+}
+
+###
 PUT http://localhost:1234/users/10
 Content-Type: application/json
 
@@ -53,7 +64,7 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:1234/users/14
+DELETE http://localhost:1234/users/48
 Content-Type: application/json
 
 ###

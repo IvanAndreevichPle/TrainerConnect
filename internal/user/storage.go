@@ -12,10 +12,10 @@ func NewStorage(db *sql.DB) *Storage {
 	return &Storage{DB: db}
 }
 
-func (s *Storage) CreateUser(user *User) error {
-	// Реализация создания пользователя в базе данных
-	_, err := s.DB.Exec("INSERT INTO users (first_name, last_name, username, password, role, email) VALUES ($1, $2, $3, $4, $5, $6)",
-		user.FirstName, user.LastName, user.Username, user.Password, user.Role, user.Email)
+// CreateUser создает нового пользователя в базе данных
+func (s *Storage) CreateUser(user *User, password, salt string) error {
+	_, err := s.DB.Exec("INSERT INTO users (first_name, last_name, username, password, role, email, salt) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		user.FirstName, user.LastName, user.Username, password, user.Role, user.Email, salt)
 	return err
 }
 

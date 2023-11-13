@@ -1,8 +1,14 @@
+// handler.go
+
 package user
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
+	"golang.org/x/crypto/bcrypt"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -63,13 +69,63 @@ func (h *Handler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) CreateNewUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var user User
-	_ = json.NewDecoder(r.Body).Decode(&user)
-	if err := h.Storage.CreateUser(&user); err != nil {
+
+	// Декодирование данных запроса, включая пароль
+	var userData struct {
+		FirstName string `json:"firstname"`
+		LastName  string `json:"lastname"`
+		Username  string `json:"username"`
+		Role      string `json:"role"`
+		Email     string `json:"email"`
+		Password  string `json:"password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&userData); err != nil {
+		log.Printf("Error decoding request body: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Преобразование в структуру User
+	user := User{
+		FirstName: userData.FirstName,
+		LastName:  userData.LastName,
+		Username:  userData.Username,
+		Role:      userData.Role,
+		Email:     userData.Email,
+		Password:  userData.Password,
+	}
+
+	// Логирование перед созданием пользователя
+	log.Printf("Creating new user: %+v", user)
+
+	// Генерация соли
+	salt, err := GenerateSalt()
+	if err != nil {
+		log.Printf("Error generating salt: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Хэширование пароля с использованием соли
+	hashedPassword, err := HashPassword(userData.Password, salt)
+	if err != nil {
+		log.Printf("Error hashing password: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Создание нового пользователя с использованием метода CreateUser
+	if err := h.Storage.CreateUser(&user, hashedPassword, salt); err != nil {
+		log.Printf("Error creating user: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Отправка ответа с данными созданного пользователя
 	json.NewEncoder(w).Encode(user)
+
+	// Логирование после создания пользователя
+	log.Printf("User successfully created: %+v", user)
 }
 
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -177,4 +233,26 @@ func (h *Handler) GetUserByUsernameHandler(w http.ResponseWriter, r *http.Reques
 	// Отправляем информацию о пользователе в формате JSON
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
+}
+
+// GenerateSalt генерирует случайную соль
+func GenerateSalt() (string, error) {
+	saltBytes := make([]byte, 32)
+	_, err := rand.Read(saltBytes)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(saltBytes), nil
+}
+
+// HashPassword хэширует пароль с использованием соли
+func HashPassword(password, salt string) (string, error) {
+	passwordBytes := []byte(password + salt)
+	hashedPassword, err := bcrypt.GenerateFromPassword(passwordBytes, bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
 }
