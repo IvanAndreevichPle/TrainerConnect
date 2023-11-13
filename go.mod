@@ -3,12 +3,10 @@ module TrainerConnect
 go 1.21
 
 require (
-	github.com/BurntSushi/toml v1.3.2 // indirect
-	github.com/go-chi/chi v1.5.5 // indirect
-	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/lib/pq v1.10.9 // indirect
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
-	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-chi/chi v1.5.5
+	github.com/go-chi/chi/v5 v5.0.10
+	github.com/lib/pq v1.10.9
 )
+
+require golang.org/x/crypto v0.15.0 // indirect

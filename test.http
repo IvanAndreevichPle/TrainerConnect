@@ -15,10 +15,11 @@ POST http://localhost:1234/users/
 Content-Type: application/json
 
 {
-  "firstname": "Иван",
-  "lastname": "Плеханов",
+  "firstname": "Ivan",
+  "lastname": "Plekhanov",
+  "username": "HeyTolstiy",
   "role": "client",
-  "Email": "ivan123@example.com"
+  "Email": "heytolty2@example.com"
 }
 
 ###
@@ -28,93 +29,12 @@ Content-Type: application/json
 {
   "firstname": "Анна",
   "lastname": "Смирнова",
+  "username": "FatANN",
   "role": "client",
   "email": "anna456@example.com"
 }
 
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
 
-{
-  "firstname": "Дмитрий",
-  "lastname": "Иванов",
-  "role": "client",
-  "email": "dmitriy789@example.com"
-}
-
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
-
-{
-  "firstname": "Елена",
-  "lastname": "Козлова",
-  "role": "client",
-  "email": "elena101@example.com"
-}
-
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
-
-{
-  "firstname": "Сергей",
-  "lastname": "Попов",
-  "role": "client",
-  "email": "sergey202@example.com"
-}
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
-
-{
-  "firstname": "Ольга",
-  "lastname": "Кузнецова",
-  "role": "client",
-  "email": "olga303@example.com"
-}
-
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
-
-{
-  "firstname": "Николай",
-  "lastname": "Соколов",
-  "role": "client",
-  "email": "nikolay404@example.com"
-}
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
-
-{
-  "firstname": "Марина",
-  "lastname": "Морозова",
-  "role": "client",
-  "email": "marina505@example.com"
-}
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
-
-{
-  "firstname": "Александр",
-  "lastname": "Ильин",
-  "role": "client",
-  "email": "alexander606@example.com"
-}
-###
-POST http://localhost:1234/users/
-Content-Type: application/json
-
-{
-  "firstname": "Татьяна",
-  "lastname": "Петрова",
-  "role": "client",
-  "email": "tatiana707@example.com"
-}
 ###
 
 PUT http://localhost:1234/users/10
@@ -133,7 +53,7 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:1234/users/1
+DELETE http://localhost:1234/users/14
 Content-Type: application/json
 
 ###

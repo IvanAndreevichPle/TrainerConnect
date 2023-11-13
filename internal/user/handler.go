@@ -1,13 +1,10 @@
-// internal/user/handler.go
-
 package user
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
-
-	"github.com/go-chi/chi"
 )
 
 type Handler struct {
@@ -24,6 +21,7 @@ func (h *Handler) Register(router *chi.Mux) {
 	router.Mount(userURL, router)
 	router.Get(userURL, h.GetList)
 	router.Get(userURL+"{id}", h.GetUserHandler)
+	router.Get("/users", h.GetUserByUsernameHandler)
 	router.Post(userURL, h.CreateNewUserHandler)
 	router.Put(userURL+"{id}", h.UpdateUser)
 	router.Patch(userURL+"{id}", h.PatchUser)
@@ -133,6 +131,9 @@ func (h *Handler) PatchUser(w http.ResponseWriter, r *http.Request) {
 	if email, ok := patchData["Email"]; ok {
 		currentUser.Email = email
 	}
+	if username, ok := patchData["Username"]; ok {
+		currentUser.Username = username
+	}
 
 	// Обновляем пользователя
 	if err := h.Storage.UpdateUser(currentUser); err != nil {
@@ -157,4 +158,23 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("User with ID " + id + " has been successfully deleted"))
+}
+
+// GetUserByUsernameHandler обрабатывает запрос на получение пользователя по имени пользователя
+func (h *Handler) GetUserByUsernameHandler(w http.ResponseWriter, r *http.Request) {
+	username := r.URL.Query().Get("username")
+	if username == "" {
+		http.Error(w, "Missing username parameter", http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.Storage.GetUserByUsername(username)
+	if err != nil {
+		http.Error(w, "Error getting user by username", http.StatusInternalServerError)
+		return
+	}
+
+	// Отправляем информацию о пользователе в формате JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
 }
