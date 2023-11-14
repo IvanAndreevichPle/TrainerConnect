@@ -1,15 +1,24 @@
+// Поиск пользователя по имени
 GET http://localhost:1234/users?username=Bedon
+
+{}
+###
+// Поиск польщователя по ID
+GET http://localhost:1234/users/
+Content-Type: application/json
 
 {}
 
 ###
 
+// Поиск польщователя по ID
 GET http://localhost:1234/users/9
 Content-Type: application/json
 
 {}
 
 ###
+// Регистрация пользователя для дальнейшей провреки авторизации
 
 POST http://localhost:1234/users/
 Content-Type: application/json
@@ -22,13 +31,9 @@ Content-Type: application/json
     "email": "Bedon@example.com",
     "password": "Vertu123"
 }
-
 ###
 
-DELETE http://localhost:1234/users/57
-Content-Type: application/json
-
-###
+// Проверка авторизации пользователя
 POST http://localhost:1234/auth
 Content-Type: application/json
 
@@ -36,5 +41,23 @@ Content-Type: application/json
   "username": "Bedon",
   "password": "Vertu123"
 }
+###
 
+// Проверка удаления пользователя
+DELETE http://localhost:1234/users/58
+Content-Type: application/json
+###
+
+// Проверка создания нового пользователя
+POST http://localhost:1234/users/
+Content-Type: application/json
+
+{
+  "firstname": "Сергей",
+  "lastname": "Суриков",
+  "username": "Noodle",
+  "role": "client",
+  "email": "Noodle@example.com",
+  "password": "Noo123"
+}
 ###

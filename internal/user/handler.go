@@ -1,10 +1,9 @@
-// handler.go
+// user/handler.go
 
 package user
 
 import (
 	"crypto/rand"
-	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
@@ -270,7 +269,6 @@ func (h *Handler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	var authData struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
-		Salt     string `json:"salt"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&authData); err != nil {
 		log.Printf("Error decoding request body: %v", err)
@@ -279,21 +277,16 @@ func (h *Handler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Получение пользователя и соли по имени пользователя из базы данных
-	existingUser, _, err := h.Storage.GetUserByUsername(authData.Username)
+	existingUser, salt, err := h.Storage.GetUserByUsername(authData.Username)
 	if err != nil {
 		log.Printf("Error getting user by username: %v", err)
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
-	// Проверка совпадения пароля с использованием соли
-	hashedPassword, err := HashPassword(authData.Password, authData.Salt)
+	// Сравнение хэша пароля с предоставленным паролем и солью
+	err = ComparePasswords(existingUser.Password, authData.Password, salt)
 	if err != nil {
-		log.Printf("Error hashing password: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	if subtle.ConstantTimeCompare([]byte(hashedPassword), []byte(existingUser.Password)) != 1 {
 		log.Printf("Invalid password for user %s", authData.Username)
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
@@ -302,4 +295,15 @@ func (h *Handler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO: Создание токена аутентификации (JWT, например) и отправка его в ответе
 	// Пример: отправка успешного ответа
 	w.Write([]byte("Authentication successful"))
+}
+
+// ComparePasswords сравнивает хэш пароля с предоставленным паролем и солью
+func ComparePasswords(hashedPassword, password, salt string) error {
+	// Проверка пароля
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password+salt))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

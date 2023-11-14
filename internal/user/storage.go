@@ -6,7 +6,7 @@ import (
 )
 
 type Storage struct {
-	DB *sql.DB
+	*sql.DB
 }
 
 func NewStorage(db *sql.DB) *Storage {

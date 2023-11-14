@@ -1,0 +1,8 @@
+{
+  "host": "77.232.131.169",
+  "port": "5432",
+  "username": "postgres",
+  "password": "Ajhneyf12#",
+  "dbname": "trainer_connect_test",
+  "sslmode": "disable"
+}
