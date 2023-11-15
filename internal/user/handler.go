@@ -73,6 +73,7 @@ func (h *Handler) CreateNewUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Декодирование данных запроса, включая пароль
 	var userData struct {
+		ID        string `json:"id"`
 		FirstName string `json:"firstname"`
 		LastName  string `json:"lastname"`
 		Username  string `json:"username"`
@@ -88,6 +89,7 @@ func (h *Handler) CreateNewUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Преобразование в структуру User
 	user := User{
+		ID:        userData.ID,
 		FirstName: userData.FirstName,
 		LastName:  userData.LastName,
 		Username:  userData.Username,
@@ -130,6 +132,7 @@ func (h *Handler) CreateNewUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	// Извлекаем ID из URL
 	id := chi.URLParam(r, "id")
 	userID, err := strconv.Atoi(id)
 	if err != nil {
@@ -137,19 +140,30 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var updatedUser User
+	// Получаем пользователя из базы данных по ID
+	updatedUser, err := h.Storage.GetUserByID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if updatedUser == nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Декодируем JSON-тело запроса и обновляем только те поля, которые присутствуют в запросе
 	if err := json.NewDecoder(r.Body).Decode(&updatedUser); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	updatedUser.ID = strconv.Itoa(userID)
-
-	if err := h.Storage.UpdateUser(&updatedUser); err != nil {
+	// Обновляем пользователя в базе данных
+	if err := h.Storage.UpdateUser(updatedUser); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Отправляем обновленного пользователя в ответе
 	json.NewEncoder(w).Encode(updatedUser)
 }
 

@@ -44,7 +44,7 @@ Content-Type: application/json
 ###
 
 // Проверка удаления пользователя
-DELETE http://localhost:1234/users/58
+DELETE http://localhost:1234/users/62
 Content-Type: application/json
 ###
 
@@ -61,3 +61,4 @@ Content-Type: application/json
   "password": "Noo123"
 }
 ###
+

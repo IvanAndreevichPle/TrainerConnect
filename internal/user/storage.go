@@ -15,8 +15,8 @@ func NewStorage(db *sql.DB) *Storage {
 
 // CreateUser создает нового пользователя в базе данных
 func (s *Storage) CreateUser(user *User, password, salt string) error {
-	_, err := s.DB.Exec("INSERT INTO users (first_name, last_name, username, password, role, email, salt) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-		user.FirstName, user.LastName, user.Username, password, user.Role, user.Email, salt)
+	_, err := s.DB.Exec("INSERT INTO users (user_id, first_name, last_name, username, password, role, email, salt) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+		user.ID, user.FirstName, user.LastName, user.Username, password, user.Role, user.Email, salt)
 
 	return err
 }
